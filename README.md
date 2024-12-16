@@ -7,6 +7,8 @@ Neopet:The BD Log history Logger
 //2)Also, if there is a difference on MaxHp of 2 pets, this script helps note the number.The pet with higher health could immediately surrender when their health drops to or below this value, to make it a fair battle.
 
 //3)BD log history
+
+
 ![image](https://github.com/user-attachments/assets/26a4eb50-7b14-4ee3-967a-0e1bd394bf02)
 
 ![image](https://github.com/user-attachments/assets/6bc3c562-d2d3-45ca-88b4-ce1dacc008cb)
