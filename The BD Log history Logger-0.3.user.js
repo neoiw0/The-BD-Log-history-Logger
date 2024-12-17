@@ -1,21 +1,27 @@
 // ==UserScript==
 // @name         The BD Log history Logger
 // @namespace    http://tampermonkey.net/
-// @version      0.3
-// @description  try to take over the world!
-// @author       You
+// @version      0.4
+// @description  A legal script only change/add the elements on the page to  make pvp battle easier
+// @author       BoriT
 // @match        https://www.neopets.com/dome/arena.phtml
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=neopets.com
 // @grant        none
 // ==/UserScript==
 
+//A legal script only change/add the elements on the page to  make pvp battle easier
 
-//How 2 Use:
+//Function:
 
 //0)BD log history
-//1)Above the battle log,in the black bar, you will see how many times your multi-healers healed.(Make it easier for oneself to follow the DDL(~yotoive)/EEL(~EELRules)/OPT(~Airistole) rules)
+
+//1)Above the battle log,in the black bar, you will see how many times your multi-healers healed.(Make it easier for oneself to follow the DDL(https://www.neopets.com/~yotoive)/EEL(https://www.neopets.com/~EELRules)/OPT(https://www.neopets.com/~Airistole) rules)
+
 //2)If there is a difference on MaxHp of 2 pets, this script helps note the number.The pet with higher health could immediately surrender when their health drops to or below this value, to make it a little more fair.
-//3) Hide names in your battle log
+
+//3) Hide/display names in your battle log
+
+//You may also like this script: BD Log Fix:https://pastebin.com/raw/6pUtVKf6  , it fix the battle log and tell you when you move second.
 
 var displayPVPInfo=true;//do you want to display MaxHP difference and how many times your multi-healers healed?
 var maxTurns=30;//max turns of hitory bd log to save
@@ -80,7 +86,8 @@ const element =document.querySelector("#container__2020 > div.battledome-contain
 // 创建一个新的 <p> 元素
 const newParagraph = document.createElement("p");
 //只要不是第一輪,就改變文字
-var intervalText=setInterval(function(){if(displayPVPInfo&&document.querySelector("#flround")&&!(document.querySelector("#flround").textContent=="1")){
+var intervalText=setInterval(function(){
+    if(displayPVPInfo&&document.querySelector("#flround")&&!(document.querySelector("#flround").textContent=="1")){
     ////////////////////
 
 if(localStorage.ABCMaxHP!=null&&localStorage.ABCMaxHP!=""&&localStorage.ABCMaxHP!="0"){
@@ -98,7 +105,8 @@ for (let i = 1; i <= maxTurns; i++) {
 }
 
     //////////////////////////
-    document.querySelector("#statusmsg > h4").textContent=localStorage.getItem('ABCLogger');}},3500);//改变文字
+  if( document.querySelector("#statusmsg > div")) document.querySelector("#statusmsg > div").textContent=localStorage.getItem('ABCLogger');
+   if( document.querySelector("#statusmsg > h4")) document.querySelector("#statusmsg > h4").textContent=localStorage.getItem('ABCLogger');}},3500);//改变文字
 var interva2Text=setInterval(function(){
   if(hideYourName) ChangeYourName();//
 if(hideYourOpponentName)ChangeOpponentName();//Change your OpponentName
@@ -257,11 +265,11 @@ if (flcollapse) {
 // 4. 修改克隆元素中的 #logcont > div > p 的 textContent 为 "HP:"
 const pElement = clonedLogCont.querySelector("div > p");
 if (pElement) {
-    pElement.textContent = "HP:"+document.querySelector("#p1hp").textContent+"/"+document.querySelector("#p2hp").textContent;
+    pElement.textContent = " Initial HP:"+document.querySelector("#p1hp").textContent+"/"+document.querySelector("#p2hp").textContent;
      // 设置文本颜色为深红色
     pElement.style.color = "darkred";
 }
-
+var goodLog=clonedLogCont.querySelector("#log > tbody")!=null;
 // 5. 获取修改后的克隆元素的 outerHTML
 const logContHTML = clonedLogCont.outerHTML;
 
@@ -270,7 +278,7 @@ const logContHTML = clonedLogCont.outerHTML;
 // 将 #logcont 元素包裹在一个新的 div 中，应用平移样式
 let modifiedHTML = `<div style="transform: translateX(0px);">${logContHTML}</div>`;
 
-localStorage.setItem(("logContent"+number), modifiedHTML);
+if(goodLog)localStorage.setItem(("logContent"+number), modifiedHTML);
 
 }
 
