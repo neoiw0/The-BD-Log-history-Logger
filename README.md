@@ -2,11 +2,11 @@
 Neopet:The BD Log history Logger
 //How 2 Use:
 
-//1)Above the battle log,in the black bar, you will see how many times your multi-healers healed.(Make it easier for oneself to follow the DDL/EEL/OPT rules)
+//0)BD log history
+//1)Above the battle log,in the black bar, you will see how many times your multi-healers healed.(Make it easier for oneself to follow the DDL(~yotoive)/EEL(~EELRules)/OPT(~Airistole) rules)
+//2)If there is a difference on MaxHp of 2 pets, this script helps note the number.The pet with higher health could immediately surrender when their health drops to or below this value, to make it a little more fair.
+//3) Hide/display names in your battle log
 
-//2)Also, if there is a difference on MaxHp of 2 pets, this script helps note the number.The pet with higher health could immediately surrender when their health drops to or below this value, to make it a fair battle.
-
-//3)BD log history
 
 
 ![image](https://github.com/user-attachments/assets/0010829d-9ca6-4d81-8af6-241f74a643a6)
