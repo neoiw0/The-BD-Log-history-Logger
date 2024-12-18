@@ -107,8 +107,11 @@ for (let i = 1; i <= maxTurns; i++) {
 }
 
     //////////////////////////
-  if( document.querySelector("#statusmsg > div")) document.querySelector("#statusmsg > div").textContent=localStorage.getItem('ABCLogger');
-   if( document.querySelector("#statusmsg > h4")) document.querySelector("#statusmsg > h4").textContent=localStorage.getItem('ABCLogger');}},3500);//改变文字
+  if( document.querySelector("#statusmsg > div")&&localStorage.getItem('ABCLogger')!="Log:") document.querySelector("#statusmsg > div").textContent=localStorage.getItem('ABCLogger');
+   if( document.querySelector("#statusmsg > h4")&&localStorage.getItem('ABCLogger')!="Log:") document.querySelector("#statusmsg > h4").textContent=localStorage.getItem('ABCLogger');
+    }
+
+},3500);//改变文字
 var interva2Text=setInterval(function(){
   if(hideYourName) ChangeYourName();//
 if(hideYourOpponentName)ChangeOpponentName();//Change your OpponentName
@@ -166,7 +169,7 @@ localStorage.setItem('ABCLogger', "Log:");
         TestWeapon(slot1,tmt,tmtstr,1200,2);
          TestWeapon(slot1,istaff,istaffstr,1200,0.2);
         TestWeapon(slot1,wodf,wodfstr,1200,0.25);
-        TestWeapon(slot1,blaze,blazestr,1200,0.2);
+        TestWeapon(slot1,blaze,blazestr,1200,0.25);
         TestWeapon(slot1,rodn,rodnstr,1200,2);
 
                         
@@ -175,7 +178,7 @@ localStorage.setItem('ABCLogger', "Log:");
          TestWeapon(slot2,tmt,tmtstr, 2200,2);
          TestWeapon(slot2,istaff,istaffstr, 2200,0.2);
         TestWeapon(slot2,wodf,wodfstr,2200,0.25);
-        TestWeapon(slot2,blaze,blazestr,2200,0.2);
+        TestWeapon(slot2,blaze,blazestr,2200,0.25);
         TestWeapon(slot2,rodn,rodnstr,2200,2);
                         
         // 这里可以写你想要触发的任何自定义代码
