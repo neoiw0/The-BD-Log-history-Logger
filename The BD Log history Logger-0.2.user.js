@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         The BD Log history Logger
 // @namespace    http://tampermonkey.net/
-// @version      0.4
+// @version      0.5
 // @description  A legal script only change/add the elements on the page to  make pvp battle easier
 // @author       BoriT
 // @match        https://www.neopets.com/dome/arena.phtml
@@ -21,16 +21,18 @@
 
 //3) Hide/display names in your battle log
 
-//You may also like this script: BD Log Fix:https://pastebin.com/raw/6pUtVKf6  , it fix the battle log and tell you when you move second.
+//-------------
+
+//You may also like this script(also approved in DC): BD Log Fix - https://pastebin.com/raw/6pUtVKf6  , it 1) fix the battle log and 2) tell you when you move second.
 
 var displayPVPInfo=true;//do you want to display MaxHP difference and how many times your multi-healers healed?
 var maxTurns=30;//max turns of hitory bd log to save
 var logBackgroundColor = "rgba(255, 0, 0, 0)"; // log Background Color
 var recordInterval=2;//how many seconds between each (log)recording action
 //
-var hideYourName=true;//if you just want the log, not like names in it
+var hideYourName=false;//if you just want the log, not like names in it
 var yourName2Disply="You"
-var hideYourOpponentName=true;//if you just want the log, not like names in it
+var hideYourOpponentName=false;//if you just want the log, not like names in it
 var opponentName2Disply="Your Opponent"
 
 
