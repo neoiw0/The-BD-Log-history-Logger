@@ -16,9 +16,8 @@ Neopet:The BD Log history Logger
 
 //3) Hide/display names in your battle log
 
+![image](https://github.com/user-attachments/assets/6ccf7c04-5c8e-4bd2-8dcc-b06ded2dd4ac)
 
-
-![image](https://github.com/user-attachments/assets/0010829d-9ca6-4d81-8af6-241f74a643a6)
 
 
 ![image](https://github.com/user-attachments/assets/6bc3c562-d2d3-45ca-88b4-ce1dacc008cb)
