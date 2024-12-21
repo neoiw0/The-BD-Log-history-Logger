@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         The BD Log history Logger
 // @namespace    http://tampermonkey.net/
-// @version      0.5
+// @version      0.6
 // @description  A legal script only change/add the elements on the page to  make pvp battle easier
 // @author       BoriT
 // @match        https://www.neopets.com/dome/arena*
@@ -13,7 +13,7 @@
 
 //Function:
 
-//0)BD log history
+//0)Show BD log history
 
 //1)Above the battle log,in the black bar, you will see how many times your multi-healers healed.(Make it easier for oneself to follow the DDL(https://www.neopets.com/~yotoive)/EEL(https://www.neopets.com/~EELRules)/OPT(https://www.neopets.com/~Airistole) rules)
 
@@ -30,9 +30,9 @@ var maxTurns=30;//max turns of hitory bd log to save
 var logBackgroundColor = "rgba(255, 0, 0, 0)"; // log Background Color
 var recordInterval=2;//how many seconds between each (log)recording action
 //
-var hideYourName=true;//if you just want the log, not like names in it
+var hideYourName=false;//if you just want the log, not like names in it
 var yourName2Disply="You"
-var hideYourOpponentName=true;//if you just want the log, not like names in it
+var hideYourOpponentName=false;//if you just want the log, not like names in it
 var opponentName2Disply="Your Opponent"
 
 
@@ -74,6 +74,38 @@ var weaponIcons = {
 
     "Lesser Attack Chive": "https://images.neopets.com/items/bd_chive01.gif",
       "Golden Butter Knife": "https://images.neopets.com/items/bd_goldknife.gif",
+      "Wand of the Air Faerie": "https://images.neopets.com/items/artifact_wandofair.gif",
+      "Sack Of Sneezing Powder": "https://images.neopets.com/items/bd_kacheek_sneeze_powder.gif",
+      "Toxic Sludge Blaster": "https://images.neopets.com/items/bd_zyrolon_3.gif",
+      "Petpet Bone": "https://images.neopets.com/items/bfm_petpetbone.gif",
+      "Radish Bow": "https://images.neopets.com/items/artifact_radish_bow.gif",
+      "Illusens Gems": "https://images.neopets.com/items/bd_illusen_gems.gif",
+      "Pumpkin Stick": "https://images.neopets.com/items/bd_pumpkin_stick.gif",
+      "Chilli Sword": "https://images.neopets.com/items/bd_scor_chilisword.gif",
+      "Maractite Battle Duck": "https://images.neopets.com/items/bd_maractiteduck.gif",
+      "Silver Korbat Amulet": "https://images.neopets.com/items/bd_korbat_amulet.gif",
+      "Darigan Generals Sword ": "https://images.neopets.com/items/bd_grarrlgeneral_sword.gif",
+      "Devious Top Hat and Cane": "https://images.neopets.com/items/bd_tophat_cane.gif",
+      "Skarls Sceptre": "https://images.neopets.com/items/bd_skarrl_sceptre.gif",
+      "Grimoire of Thade": "https://images.neopets.com/items/eliv_thade_book.gif",
+      "Mysterious Amulet": "https://images.neopets.com/items/bd_mysterious_amulet.gif",
+      "Commander Blade": "https://images.neopets.com/items/bd_skelsoldier_sword.gif",
+      "Florins Flask": "https://images.neopets.com/items/alm_flask_florins.gif",
+      "Island Mystics Staff": "https://images.neopets.com/items/bd_mystic_staff.gif",
+      "Mynci Helmet": "https://images.neopets.com/items/bd_mynci_phelm.gif",
+      "Amulet of the Unblinking Eye": "https://images.neopets.com/items/bd_unblinking_eye_amulet.gif",
+      "Frozen Wave Scimitar": "https://images.neopets.com/items/bd_scimitar_frzwave.gif",
+      "Tyrannian Army Math Tools": "https://images.neopets.com/items/bd_dd_swissmathtool.gif",
+      "Seti Hilt Sword": "https://images.neopets.com/items/bd_seti_sword.gif",
+      "Snowflake Pendant": "https://images.neopets.com/items/bd_snowflake_pendant.gif",
+      "Greater Orb of the Fire Faerie": "https://images.neopets.com/items/artifact_greatfireorb.gif",
+      "Sophies Wooden Spoon": "https://images.neopets.com/items/bd_sophie_spoon.gif",
+      "Fighting Folder": "https://images.neopets.com/items/bd_folder.gif",
+      "Yooyuball Keepers Chest Guard": "https://images.neopets.com/items/altcp_keeperchestplate.gif",
+      "xxxxx": "xxxxxxx",
+      "xxxxx": "xxxxxxx",
+      "xxxxx": "xxxxxxx",
+      "xxxxx": "xxxxxxx",
       "xxxxx": "xxxxxxx",
       "xxxxx": "xxxxxxx",
       "xxxxx": "xxxxxxx",
@@ -122,6 +154,7 @@ var weaponIcons = {
       "Drain Life": "https://images.neopets.com/bd2/abilities/0030_d7h34sd92x_drainlife/thumb_30.png",
       "Healing Fire": "https://images.neopets.com/bd2/abilities/0003_c342ieuwds_healingfire/thumb_3.png",
       "Rejuvenate": "https://images.neopets.com/bd2/abilities/0029_ah54yubiow_rejuvenate/thumb_29.png",
+    "Rejuvinate": "https://images.neopets.com/bd2/abilities/0029_ah54yubiow_rejuvenate/thumb_29.png",
       "Adrenaline Rush": "https://images.neopets.com/bd2/abilities/0033_yq734ehvrw_adrenalinerush/thumb_33.png",
       "Rally Cry": "https://images.neopets.com/bd2/abilities/0032_yh2u3wqv4b_rallycry/thumb_32.png",
       "Reflect": "https://images.neopets.com/bd2/abilities/0031_3hrei48dgh_reflect/thumb_31.png",
@@ -154,13 +187,14 @@ var istaff='url("https://images.neopets.com/items/earth_staff.gif")';
 var wodf='url("https://images.neopets.com/items/darkfaerie_wand.gif")';
 var blaze='url("https://images.neopets.com/items/wea_tge_scimitar.gif")';
 var rodn='url("https://images.neopets.com/items/rod_darknova.gif")';
+var rosn='url("https://images.neopets.com/items/wand_supernova.gif")';
 ////////////////////////////////////////////multi-healers string to display/////////////////////////////////////////////////////////////////
 var tmtstr="TMT";
 var istaffstr='Istaff';
-var wodfstr='WODF';
+var wodfstr='WoDF';
 var blazestr='Blaze';
-var rodnstr='RODN';
-
+var rodnstr='RoDn';
+var rosnstr='RoSn';
 
 var currentRound=0;
 var onlyonce=0;
@@ -179,13 +213,13 @@ var intervalText=setInterval(function(){
     if(displayPVPInfo&&document.querySelector("#flround")&&!(document.querySelector("#flround").textContent=="1")){
     ////////////////////
 
-if(localStorage.ABCMaxHP!=null&&localStorage.ABCMaxHP!=""&&localStorage.ABCMaxHP!="0"){
+if(localStorage.ABCMaxHP1!=null&&localStorage.ABCMaxHP1!=""&&localStorage.ABCMaxHP1!="0"){
 // 设置 <p> 元素的文本内容
-newParagraph.textContent = "MaxHP Difference="+localStorage.ABCMaxHP;
+newParagraph.textContent = "Initial HP:"+localStorage.ABCMaxHP1+"/"+localStorage.ABCMaxHP2+". The Initial HP difference between both sides was "+(localStorage.ABCMaxHP1-localStorage.ABCMaxHP2)+".";
 }
 // 设置 <p> 元素的文本颜色为红色
-newParagraph.style.color = "red";
-
+newParagraph.style.color = "darkred";
+newParagraph.style.fontWeight = "bold";
 // 将新的 <p> 元素添加到选择的元素下面
 element.appendChild(newParagraph);
 ///////////////////////////////////////////////////////
@@ -251,11 +285,12 @@ for (let i = 1; i <= maxTurns; i++) {
 }
 
             /////////
-            localStorage.ABCMaxHP=document.querySelector("#p1hp").textContent-document.querySelector("#p2hp").textContent;//储存最大血量数据
+            localStorage.ABCMaxHP1=document.querySelector("#p1hp").textContent;//储存最大血量数据
+            localStorage.ABCMaxHP2=document.querySelector("#p2hp").textContent;//储存最大血量数据
 localStorage.setItem('ABCLogger', "Log:");
 
 }
-        
+        TestWeapon(slot1,rosn,rosnstr,1200,2);//slotNumber,weaponLink,weaponString,delayInMs,BelowWhat%ofHPItWillHeal(2 if unconditional)
         TestWeapon(slot1,tmt,tmtstr,1200,2);
          TestWeapon(slot1,istaff,istaffstr,1200,0.2);
         TestWeapon(slot1,wodf,wodfstr,1200,0.25);
@@ -263,8 +298,8 @@ localStorage.setItem('ABCLogger', "Log:");
         TestWeapon(slot1,rodn,rodnstr,1200,2);
 
                         
-        //
-           
+        ////rosn,rosnstr
+            TestWeapon(slot2,rosn,rosnstr, 2200,2);
          TestWeapon(slot2,tmt,tmtstr, 2200,2);
          TestWeapon(slot2,istaff,istaffstr, 2200,0.2);
         TestWeapon(slot2,wodf,wodfstr,2200,0.25);
@@ -442,3 +477,15 @@ logElement.innerHTML = logHTML;
 
     }
 }
+
+
+
+
+//let result = "";
+//for (let n = 2; n <= 30; n++) {
+//    if(document.querySelector(`#content > table > tbody > tr:nth-child(${n}) > td:nth-child(2) > a > b`)){
+  //  let str1 = document.querySelector(`#content > table > tbody > tr:nth-child(${n}) > td:nth-child(2) > a > b`).textContent;
+    //let str2 = document.querySelector(`#content > table > tbody > tr:nth-child(${n}) > td:nth-child(1) > a > img`).src;
+//    result += `"${str1}": "${str2}", `;}
+//}
+//console.log(result);
