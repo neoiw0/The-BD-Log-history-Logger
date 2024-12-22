@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         The BD Log history Logger
 // @namespace    http://tampermonkey.net/
-// @version      0.6
+// @version      0.7
 // @description  A legal script only change/add the elements on the page to  make pvp battle easier
 // @author       BoriT
 // @match        https://www.neopets.com/dome/arena*
@@ -30,9 +30,9 @@ var maxTurns=30;//max turns of hitory bd log to save
 var logBackgroundColor = "rgba(255, 0, 0, 0)"; // log Background Color
 var recordInterval=2;//how many seconds between each (log)recording action
 //
-var hideYourName=false;//if you just want the log, not like names in it
+var hideYourName=true;//if you just want the log, not like names in it
 var yourName2Disply="You"
-var hideYourOpponentName=false;//if you just want the log, not like names in it
+var hideYourOpponentName=true;//if you just want the log, not like names in it
 var opponentName2Disply="Your Opponent"
 
 
@@ -234,7 +234,8 @@ for (let i = 1; i <= maxTurns; i++) {
 
 },3500);//改变文字
 var interva2Text=setInterval(function(){
-    if(document.querySelector("#flround")&&currentRound!=document.querySelector("#flround").textContent){
+    if(document.querySelector("#flround")){
+        //&&currentRound!=document.querySelector("#flround").textContent
    currentRound= document.querySelector("#flround").textContent;
   if(hideYourName) ChangeYourName();//
 if(hideYourOpponentName)ChangeOpponentName();//Change your OpponentName
@@ -457,24 +458,25 @@ var logElement = document.querySelector("#logcont");
     }
 }
 function AddIcons() {
-    var logElement = document.querySelector("#logcont");
+    
     // 如果元素存在，执行替换操作
-    if (logElement&&document.querySelector("#p1name")) {
+    if (document.querySelector("#p1name")) {
 //额外加2个
      //   weaponIcons[document.querySelector("#p2name").textContent] = document.querySelector("#p2headshot").style.backgroundImage.slice(5, -2);
      //   weaponIcons[opponentName2Disply] = document.querySelector("#p2headshot").style.backgroundImage.slice(5, -2);
 weaponIcons["You "] = document.querySelector("#p1headshot").style.backgroundImage.slice(5, -2);
 if(document.querySelector("#p1name").textContent!="You")weaponIcons[document.querySelector("#p1name").textContent] = document.querySelector("#p1headshot").style.backgroundImage.slice(5, -2);
-
+var logElement = document.querySelector("#logcont");
 let logHTML = logElement.innerHTML;
-
+if((!logHTML.includes("https://images.neopets.com/items"))&&(!logHTML.includes("https://images.neopets.com/bd2/abili"))){
+    console.log(222222222);
 for (const [weapon, icon] of Object.entries(weaponIcons)) {
     const regex = new RegExp(`(${weapon})`, 'g');
     logHTML = logHTML.replace(regex, `$1 <img src="${icon}" alt="${weapon} icon" style="width:25px;height:25px;">`);
 }
 
 logElement.innerHTML = logHTML;
-
+}
     }
 }
 
