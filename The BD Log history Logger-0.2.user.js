@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         The BD Log history Logger
 // @namespace    http://tampermonkey.net/
-// @version      0.7
-// @description  A legal script only change/add the elements on the page to  make pvp battle easier
+// @version      1
+// @description  A legal script only change/add the elements on the page to make pvp battle easier
 // @author       BoriT
 // @match        https://www.neopets.com/dome/arena*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=neopets.com
@@ -27,15 +27,15 @@
 
 var displayPVPInfo=false;//do you want to display MaxHP difference and how many times your multi-healers healed?
 var fillBattleChatWithPVPInfo=false;//do you want the info about how many times your multi-healers healed, filled in your battle chat?
-var maxTurns=30;//max turns of hitory bd log to save
+var maxTurns=9999;//max turns of history bd log to save
 var logBackgroundColor = "rgba(255, 0, 0, 0)"; // log Background Color
 var recordInterval=2;//how many seconds Interval between each (log)recording action
 //hide private info?
-var hideYourName=false;//if you just want the log, not like names in it
+var hideYourName=true;//if you just want the log, not like names in it
 var yourName2Disply="You"
 var hideYourOpponentName=false;//if you just want the log, not like names in it
 var opponentName2Disply="Your Opponent"
-
+var displayMaxLogs = parseInt(localStorage.getItem('displayMaxLogs')) || 4; // 0=show all, other numbers=show history log of the closest N rounds.
 
 
 
@@ -105,6 +105,23 @@ var weaponIcons = {
       "Yooyuball Keepers Chest Guard": "https://images.neopets.com/items/altcp_keeperchestplate.gif",
       "Bandolaro": "https://images.neopets.com/items/space_utility-bandolaro.gif",
 "Scroll of The Dark Star": "https://images.neopets.com/items/bvs_star_magic.gif",
+    "Dark Novas": "https://images.neopets.com/items/darknova.gif",
+     "Explorers Whip": "https://images.neopets.com/items/bd_whip_explorers.gif",
+     "Drakara's Wand": "https://images.neopets.com/items/4fd30e1604fb56.gif",
+     "Drakara's Robe of Concealment": "https://images.neopets.com/items/a24c548b3f35a1.gif",
+    "Malevolent Being": "https://images.neopets.com/dome/npcs/00707_a17df43501_tvw/portrait_707.png",
+     "Drakara's Maractite Scrying Bowl": "https://images.neopets.com/items/82b2fd280e5abd.gif",
+     "Drakara's Amulet": "https://images.neopets.com/items/2e03f69279eed0.gif",
+     "Snowickle Shaped Ocarina": "https://images.neopets.com/items/0a0193daf1d168.gif",
+     "Void Quantum Blaster": "https://images.neopets.com/items/bd_vqb.gif",
+     "xxxxxxxxxxxxxxxx": "httpsxxxxxxxxxxxxxxxxxxxx",
+     "xxxxxxxxxxxxxxxx": "httpsxxxxxxxxxxxxxxxxxxxx",
+     "xxxxxxxxxxxxxxxx": "httpsxxxxxxxxxxxxxxxxxxxx",
+     "xxxxxxxxxxxxxxxx": "httpsxxxxxxxxxxxxxxxxxxxx",
+     "xxxxxxxxxxxxxxxx": "httpsxxxxxxxxxxxxxxxxxxxx",
+     "xxxxxxxxxxxxxxxx": "httpsxxxxxxxxxxxxxxxxxxxx",
+     "xxxxxxxxxxxxxxxx": "httpsxxxxxxxxxxxxxxxxxxxx",
+
         // you can add more
 };
 
@@ -145,7 +162,7 @@ var weaponIcons = {
       "Esophagor Stench": "https://images.neopets.com/bd2/abilities/0037_tgyuy43ui0_esophagorstench/thumb_37.png",
       "Meepit Stampede": "https://images.neopets.com/bd2/abilities/0034_syb428iowu_meepitstampede/thumb_34.png",
       "Summon Monoceraptor": "https://images.neopets.com/bd2/abilities/0035_py72ri38gd_summonmonoceraptor/thumb_35.png",
-
+ "Celebratory Confetti Cannon": "https://images.neopets.com/items/311d853399.gif",//Cannon 's blocking behaviour displays in the same way as an ability somehow
     // you can add more
 };
 
@@ -187,63 +204,84 @@ var slot2=document.querySelector("#p1e2m > div");
 
 ////////////////////////////// you dont have to change anything below//////////////////
 var originalOpponentName;
- // 选择到指定的元素
+ // Select the target element
 const element =document.querySelector("#container__2020 > div.battledome-container");
 
-// 创建一个新的 <p> 元素
+// Create a new <p> element
 const newParagraph = document.createElement("p");
-//只要不是第一輪,就改變文字
-var intervalText=setInterval(function(){
-    if(document.querySelector("#flround")&&!(document.querySelector("#flround").textContent=="1")){
-    ////////////////////
+// Only if not the first round, change the text
+var intervalText = setInterval(function () {
+    if (document.querySelector("#flround") && !(document.querySelector("#flround").textContent == "1")) {
+        // --- Original PVP info display ---
+        if (displayPVPInfo && localStorage.ABCMaxHP1 != null && localStorage.ABCMaxHP1 != "" && localStorage.ABCMaxHP1 != "0") {
+            newParagraph.textContent = "Initial HP:" + localStorage.ABCMaxHP1 + "/" + localStorage.ABCMaxHP2 + ". The Initial HP difference between both sides was " + (localStorage.ABCMaxHP1 - localStorage.ABCMaxHP2) + ".";
+        }
+        newParagraph.style.color = "darkred";
+        newParagraph.style.fontWeight = "bold";
+        element.appendChild(newParagraph);
 
-if(displayPVPInfo&&localStorage.ABCMaxHP1!=null&&localStorage.ABCMaxHP1!=""&&localStorage.ABCMaxHP1!="0"){
-// 设置 <p> 元素的文本内容
-newParagraph.textContent = "Initial HP:"+localStorage.ABCMaxHP1+"/"+localStorage.ABCMaxHP2+". The Initial HP difference between both sides was "+(localStorage.ABCMaxHP1-localStorage.ABCMaxHP2)+".";
-}
-// 设置 <p> 元素的文本颜色为红色
-newParagraph.style.color = "darkred";
-newParagraph.style.fontWeight = "bold";
-// 将新的 <p> 元素添加到选择的元素下面
-element.appendChild(newParagraph);
-///////////////////////////////////////////////////////
-for (let i = 1; i <= maxTurns; i++) {
-    AddMoreLog(i);
-}
+        // --- Create the log count input box (only once) ---
+        if (!document.getElementById("log-count-input")) {
+            var controlDiv = document.createElement("div");
+            controlDiv.style.margin = "5px 0";
+            controlDiv.innerHTML = '<label style="color:black;font-weight:bold;">Show only the last </label>' +
+                '<input id="log-count-input" type="number" min="0" value="' + displayMaxLogs + '" style="width:60px; margin:0 5px;">' +
+                '<label style="color:black;font-weight:bold;"> rounds (0=all)</label>';
 
-    //////////////////////////
-  if( displayPVPInfo&&document.querySelector("#statusmsg > div")&&localStorage.getItem('ABCLogger')!="Log:") {document.querySelector("#statusmsg > div").textContent=localStorage.getItem('ABCLogger');if(fillBattleChatWithPVPInfo)document.querySelector("#chat").value=localStorage.getItem('ABCLogger');}
-   if( displayPVPInfo&&document.querySelector("#statusmsg > h4")&&localStorage.getItem('ABCLogger')!="Log:") {document.querySelector("#statusmsg > h4").textContent=localStorage.getItem('ABCLogger');if(fillBattleChatWithPVPInfo)document.querySelector("#chat").value=localStorage.getItem('ABCLogger');}
+            var logCont = document.querySelector("#logcont");
+            logCont.parentNode.appendChild(controlDiv);
+
+            document.getElementById("log-count-input").addEventListener("change", function () {
+                var val = parseInt(this.value) || 0;
+                displayMaxLogs = val;
+                localStorage.setItem('displayMaxLogs', val);
+                refreshLogDisplay();
+            });
+        }
+
+        // --- Refresh log history on initial load ---
+        refreshLogDisplay();
+
+        // --- Fill PVP info in the status bar ---
+        if (displayPVPInfo && document.querySelector("#statusmsg > div") && localStorage.getItem('ABCLogger') != "Log:") {
+            document.querySelector("#statusmsg > div").textContent = localStorage.getItem('ABCLogger');
+            if (fillBattleChatWithPVPInfo) document.querySelector("#chat").value = localStorage.getItem('ABCLogger');
+        }
+        if (displayPVPInfo && document.querySelector("#statusmsg > h4") && localStorage.getItem('ABCLogger') != "Log:") {
+            document.querySelector("#statusmsg > h4").textContent = localStorage.getItem('ABCLogger');
+            if (fillBattleChatWithPVPInfo) document.querySelector("#chat").value = localStorage.getItem('ABCLogger');
+        }
+
+        // Stop the repeated trigger; subsequent refreshes are driven by round changes or the input box
+        clearInterval(intervalText);
     }
-
-},3500);//改变文字
-var interva2Text=setInterval(function(){
-    if(document.querySelector("#flround")){
-        //&&currentRound!=document.querySelector("#flround").textContent
-   currentRound= document.querySelector("#flround").textContent;
-  if(hideYourName) ChangeYourName();//
-if(hideYourOpponentName)ChangeOpponentName();//Change your OpponentName
-        AddIcons();//
+}, 3500);
+var interva2Text = setInterval(function () {
+    if (document.querySelector("#flround")) {
+        currentRound = document.querySelector("#flround").textContent;
+        if (hideYourName) ChangeYourName();
+        if (hideYourOpponentName) ChangeOpponentName();
+        AddIcons();
     }
-    ///////history logger
-        if(document.querySelector("#flround")&&document.querySelector("#flround").textContent!=1){
-        SetLog(document.querySelector("#flround").textContent);}
-
-},recordInterval*1000);//history logger
+    if (document.querySelector("#flround") && document.querySelector("#flround").textContent != 1) {
+        SetLog(document.querySelector("#flround").textContent);
+        refreshLogDisplay();   // Refresh the display after a round change
+    }
+}, recordInterval * 1000);
 
 
 
 var intervalId0=setInterval(function(){
- // 1. 获取按钮元素（假设按钮的id为"myButton"）
+ // 1. Get the button element (assuming the button's id is "fight")
     var button = document.querySelector("#fight");
 
-    // 2. 检查按钮是否存在
+    // 2. Check if the button exists
     if (button) {
-            // 移除可能存在的旧事件监听器
-          // 元素已经加载，清除定时器
+            // Remove possible old event listener
+          // The element has loaded, clear the interval
       clearInterval(intervalId0);
        // button.removeEventListener('click', handleClick);
-        // 3. 绑定点击事件监听器
+        // 3. Bind click event listener
         button.addEventListener('click', handleClick);
 
         ///////history logger
@@ -253,14 +291,14 @@ var intervalId0=setInterval(function(){
         ///////
     }
 
-    // 自定义点击事件处理函数
+    // Custom click event handler function
     function handleClick() {
         if(onlyonce!=document.querySelector("#flround").textContent){
             onlyonce=document.querySelector("#flround").textContent;
         myCustomMethod();}
     }
 
-    // 自定义方法
+    // Custom method
     function myCustomMethod() {
          console.log(document.querySelector("#flround").textContent);
         if(document.querySelector("#flround").textContent=="1"){
@@ -270,8 +308,8 @@ for (let i = 1; i <= maxTurns; i++) {
 }
 
             /////////
-            localStorage.ABCMaxHP1=document.querySelector("#p1hp").textContent;//储存最大血量数据
-            localStorage.ABCMaxHP2=document.querySelector("#p2hp").textContent;//储存最大血量数据
+            localStorage.ABCMaxHP1=document.querySelector("#p1hp").textContent;//Store max HP data
+            localStorage.ABCMaxHP2=document.querySelector("#p2hp").textContent;//Store max HP data
 localStorage.setItem('ABCLogger', "Log:");
 
 }
@@ -282,7 +320,7 @@ localStorage.setItem('ABCLogger', "Log:");
         TestWeapon(slot1,blaze,blazestr,1200,0.25);
         TestWeapon(slot1,rodn,rodnstr,1200,2);
 
-                        
+
         ////rosn,rosnstr
             TestWeapon(slot2,rosn,rosnstr, 2200,2);
          TestWeapon(slot2,tmt,tmtstr, 2200,2);
@@ -290,8 +328,8 @@ localStorage.setItem('ABCLogger', "Log:");
         TestWeapon(slot2,wodf,wodfstr,2200,0.25);
         TestWeapon(slot2,blaze,blazestr,2200,0.25);
         TestWeapon(slot2,rodn,rodnstr,2200,2);
-                        
-        // 这里可以写你想要触发的任何自定义代码
+
+        // You can write any custom code you want to trigger here
     }
 
 
@@ -301,29 +339,29 @@ localStorage.setItem('ABCLogger', "Log:");
 function TestWeapon(item,identity,str,delayy,percent){
 
 var hpjudge=parseInt(document.getElementById('p1hgreen').style.top, 10)<-456*(1-percent);
-//console.log(item,identity,str,hpjudge);//打印送进来的变量
+//console.log(item,identity,str,hpjudge);//Print the incoming variables
     if(hpjudge&&item&&item.style.backgroundImage==identity)
-    {//判断包裹
+    {//Condition block
 
          setTimeout(function() {
-// 获取存储的字符串
+// Get the stored string
 let storedString = localStorage.getItem('ABCLogger');
 
-// 如果存储的字符串不存在（即首次使用），可以设置为一个空字符串
+// If the stored string doesn't exist (first use), set it to an empty string
 if (storedString === null) {
     storedString = '';
 }
 
-// 要添加的内容
+// Content to add
 let newContent = "|"+str;
 
-// 将新内容拼接到原有内容后面
-storedString += newContent; // 或者 storedString = storedString + newContent;
+// Append the new content to the existing one
+storedString += newContent; // or storedString = storedString + newContent;
 
-// 将更新后的字符串存回 localStorage
+// Store the updated string back to localStorage
 localStorage.setItem('ABCLogger', storedString);
    }, delayy);
-         }//判断结束
+         }//End of condition
 
 }
 //////////////////
@@ -334,28 +372,28 @@ if(document.querySelector("#flround")&&document.querySelector("#flround").textCo
 
   var targetElement = document.querySelector("#logcont");
 
-  // 创建一个新的 div 元素
+  // Create a new div element
   var newElement = document.createElement("div");
 
-  // 设置新元素的属性
-  newElement.id = "storage-container"+number; // 你可以根据需要修改ID
-  newElement.classList.add("storage"); // 你可以添加自定义的CSS类名
+  // Set the attributes of the new element
+  newElement.id = "storage-container"+number; // You can modify the ID as needed
+  newElement.classList.add("storage"); // You can add a custom CSS class name
 
-  // 设置新元素的内容
+  // Set the content of the new element
   newElement.innerHTML = localStorage.getItem("logContent"+number);
 
-// 设置新元素的样式，确保内容不溢出
+// Set the style of the new element to ensure content doesn't overflow
  // newElement.style.padding = "20px";
-  //newElement.style.marginTop = "20px"; // 可选，控制与上方元素的间距
-  newElement.style.backgroundColor = logBackgroundColor; // 可选，背景颜色
-  //newElement.style.border = "1px solid #ccc"; // 可选，添加边框
-  //newElement.style.maxWidth = "100%"; // 限制最大宽度
-  //newElement.style.boxSizing = "border-box"; // 确保 padding 和 border 不影响总宽度
+  //newElement.style.marginTop = "20px"; // Optional, control the spacing with the element above
+  newElement.style.backgroundColor = logBackgroundColor; // Optional, background color
+  //newElement.style.border = "1px solid #ccc"; // Optional, add a border
+  //newElement.style.maxWidth = "100%"; // Limit the maximum width
+  //newElement.style.boxSizing = "border-box"; // Ensure padding and border do not affect the total width
 
-  // 防止内容溢出
+  // Prevent content overflow
   //newElement.style.overflow = "hidden";
 
-  // 将新元素插入到目标元素之后
+  // Insert the new element after the target element
   targetElement.insertAdjacentElement("afterend", newElement);
 }}
 
@@ -365,32 +403,32 @@ localStorage.setItem(("logContent"+number),null);
 //document.querySelector("#logcont")
 function SetLog(number){
 
-// 1. 获取 #logcont 元素
+// 1. Get the #logcont element
 const logCont = document.querySelector("#logcont");
 
-// 2. 克隆 #logcont 元素，确保原页面不被修改
-const clonedLogCont = logCont.cloneNode(true); // true 表示深度克隆（包括所有子节点）
+// 2. Clone the #logcont element to ensure the original page is not modified
+const clonedLogCont = logCont.cloneNode(true); // true means deep clone (including all child nodes)
 
-// 3. 删除克隆元素中的 #flcollapse 元素
+// 3. Remove the #flcollapse element from the clone
 const flcollapse = clonedLogCont.querySelector("#flcollapse");
 if (flcollapse) {
     flcollapse.remove();
 }
 
-// 4. 修改克隆元素中的 #logcont > div > p 的 textContent 为 "HP:"
+// 4. Modify the textContent of #logcont > div > p in the clone to "HP:"
 const pElement = clonedLogCont.querySelector("div > p");
 if (pElement) {
     pElement.textContent = "HP:"+document.querySelector("#p1hp").textContent+"/"+document.querySelector("#p2hp").textContent;
-     // 设置文本颜色为深红色
+     // Set text color to dark red
     pElement.style.color = "darkred";
 }
 var goodLog=clonedLogCont.querySelector("#log > tbody")!=null;
-// 5. 获取修改后的克隆元素的 outerHTML
+// 5. Get the outerHTML of the modified clone
 const logContHTML = clonedLogCont.outerHTML;
 
 
 
-// 将 #logcont 元素包裹在一个新的 div 中，应用平移样式
+// Wrap the #logcont element in a new div and apply a translation style
 let modifiedHTML = `<div style="transform: translateX(0px);">${logContHTML}</div>`;
 
 if(goodLog)localStorage.setItem(("logContent"+number), modifiedHTML);
@@ -403,15 +441,15 @@ if(goodLog)localStorage.setItem(("logContent"+number), modifiedHTML);
 
 
 function ChangeOpponentName() {
-    // 获取 #log 元素
+    // Get the #log element
 var logElement = document.querySelector("#logcont");
-    // 如果元素存在，执行替换操作
+    // If the element exists, perform replacement
     if (logElement && document.querySelector("#p2name") ) {
         var opponetname = document.querySelector("#p2name").textContent;
         if(opponetname !== opponentName2Disply)originalOpponentName=opponetname;
         //&& document.querySelector("#p2name").textContent !== opponentName2Disply
 
-        // 将 logElement 内的指定字符串全部替换为 "Your Opponent"
+        // Replace all occurrences of the specified string in logElement with "Your Opponent"
         logElement.innerHTML = logElement.innerHTML.replace(new RegExp(originalOpponentName, 'g'), opponentName2Disply);
         document.querySelector("#p2name").textContent = opponentName2Disply;
     }
@@ -423,18 +461,18 @@ var logElement = document.querySelector("#logcont");
 
 }
 function ChangeYourName() {
-    // 如果元素存在，执行替换操作
+    // If the element exists, perform replacement
     if (document.querySelector("#p1name") && document.querySelector("#p1name").textContent !== yourName2Disply) {
 
 var originalYourName = document.querySelector("#p1name").textContent;
 
-         // 获取 #log 元素
+         // Get the #log element
 var logElement = document.querySelector("#logcont");
 
 
 
 
-        // 将 logElement 内的指定字符串全部替换
+        // Replace all occurrences of the specified string in logElement
         logElement.innerHTML = logElement.innerHTML.replace(new RegExp(originalYourName, 'g'), "You");
  ////////////////////////////////////////
   document.querySelector("#p1name").textContent = yourName2Disply;
@@ -442,10 +480,10 @@ var logElement = document.querySelector("#logcont");
     }
 }
 function AddIcons() {
-    
-    // 如果元素存在，执行替换操作
+
+    // If the element exists, perform replacement
     if (document.querySelector("#p1name")) {
-//额外加2个
+// Additionally add 2
      //   weaponIcons[document.querySelector("#p2name").textContent] = document.querySelector("#p2headshot").style.backgroundImage.slice(5, -2);
      //   weaponIcons[opponentName2Disply] = document.querySelector("#p2headshot").style.backgroundImage.slice(5, -2);
 weaponIcons["You "] = document.querySelector("#p1headshot").style.backgroundImage.slice(5, -2);
@@ -478,7 +516,33 @@ logElement.innerHTML = logHTML;
 }
 
 
+function refreshLogDisplay() {
+    if (!document.querySelector("#flround")) return;
+    var currentRoundNum = parseInt(document.querySelector("#flround").textContent) || 0;
 
+    // Remove all existing history log containers
+    document.querySelectorAll('[id^="storage-container"]').forEach(el => el.remove());
+
+    if (currentRoundNum <= 1) return;
+
+    var start, end;
+    if (displayMaxLogs > 0) {
+        start = Math.max(1, currentRoundNum - displayMaxLogs);
+        end = currentRoundNum - 1;
+    } else {
+        start = 1;
+        end = currentRoundNum - 1;   // Only show records with rounds less than the current round (no future logs possible)
+    }
+
+    for (var i = start; i <= end; i++) {
+        AddMoreLog(i);
+    }
+    // Move the control panel to the end of all logs
+var controlDiv = document.getElementById("log-count-input")?.parentNode;
+if (controlDiv) {
+    controlDiv.parentNode.appendChild(controlDiv);
+}
+}
 
 //let result = "";
 //for (let n = 2; n <= 30; n++) {
